@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - St. Paul's School CAS & Enrichment</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #001d31 0%, #8b1538 100%);
+            padding: 50px 30px;
+            text-align: center;
+        }
+        .school-name {
+            color: white;
+            font-size: 20px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin: 0 0 20px 0;
+            opacity: 0.9;
+        }
+        .title {
+            color: white;
+            font-size: 42px;
+            font-weight: bold;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: -1px;
+        }
+        .subtitle {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 18px;
+            margin: 12px 0 0;
+            font-weight: 400;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .welcome {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .message {
+            font-size: 16px;
+            color: #4b5563;
+            margin-bottom: 30px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .otp-section {
+            background: linear-gradient(135deg, rgba(139, 21, 56, 0.05) 0%, rgba(0, 29, 49, 0.05) 100%);
+            border: 2px solid #8b1538;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .otp-label {
+            color: #001d31;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        .otp-code {
+            font-family: 'Courier New', monospace;
+            font-size: 48px;
+            font-weight: bold;
+            color: #8b1538;
+            letter-spacing: 12px;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .otp-text {
+            color: #4b5563;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #8b1538;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        .info-box h3 {
+            color: #001d31;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 12px 0;
+        }
+        .info-box p {
+            color: #4b5563;
+            margin: 8px 0;
+            font-size: 15px;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .info-box li {
+            color: #4b5563;
+            margin: 5px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer-text {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .school-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .school-info p {
+            color: #001d31;
+            font-weight: 600;
+            margin: 5px 0;
+        }
+        .warning {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="school-name">St. Paul's School</p>
+            <h1 class="title">CAS & Enrichment</h1>
+            <p class="subtitle">Course Selection 2025/26</p>
+        </div>
+        
+        <div class="content">
+            <h2 class="welcome">Email Verification Required</h2>
+            
+            <p class="message">
+                You have requested access to the CAS & Enrichment course selection system.<br>
+                Please use the verification code below to complete your authentication.
+            </p>
+
+            <div class="otp-section">
+                <p class="otp-label">Your Verification Code</p>
+                <div class="otp-code">{{ .Token }}</div>
+                <p class="otp-text">This code will expire in 10 minutes</p>
+            </div>
+
+            <div class="info-box">
+                <h3>📋 Important Information</h3>
+                <p><strong>For Lower 6 Pupils Only:</strong></p>
+                <ul>
+                    <li>You may select <strong>one</strong> CAS course for the academic year</li>
+                    <li>Each course has a maximum of <strong>3 Lower 6 places</strong></li>
+                    <li>Course selection is on a first-come, first-served basis</li>
+                    <li>Once submitted, your selection cannot be changed</li>
+                </ul>
+            </div>
+
+            <div class="warning">
+                ⚠️ <strong>Security Notice:</strong> This code is for your use only. Do not share it with anyone. St. Paul's School staff will never ask for your verification code.
+            </div>
+
+            <div class="info-box">
+                <h3>🔒 How to Use This Code</h3>
+                <p>1. Return to the CAS & Enrichment selection page</p>
+                <p>2. Enter this 6-digit code in the verification field</p>
+                <p>3. Click "Verify & Continue" to access course selection</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p class="footer-text">
+                This email was sent because you requested access to the CAS & Enrichment course selection system.<br>
+                If you did not make this request, please ignore this email and the code will expire automatically.
+            </p>
+            
+            <div class="school-info">
+                <p>St. Paul's School</p>
+                <p class="footer-text">
+                    Rua Juquiá, 166 - Jardim Paulistano<br>
+                    São Paulo - SP, 01440-903<br>
+                    Brazil
+                </p>
+            </div>
+            
+            <p class="footer-text" style="margin-top: 20px;">
+                <small>© 2025 St. Paul's School - Excellence in Education</small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

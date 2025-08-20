@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — CAS & Enrichment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script defer src="https://kit.fontawesome.com/a2e0b5f76d.js" crossorigin="anonymous"></script>
+  <style>
+    .admin-wrap{max-width:1180px;margin:0 auto;padding:2rem 1rem}
+    .card{background:#fff;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.07);border:1px solid #e5e7eb}
+    .card-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #e5e7eb}
+    .card-body{padding:1rem 1.25rem}
+    .table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .table th{font-weight:700;text-align:left;color:#111827;font-size:.9rem;padding:.35rem .6rem}
+    .table td{background:#fafafa;padding:.75rem .6rem;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb}
+    .table tr td:first-child{border-left:1px solid #e5e7eb;border-top-left-radius:10px;border-bottom-left-radius:10px}
+    .table tr td:last-child{border-right:1px solid #e5e7eb;border-top-right-radius:10px;border-bottom-right-radius:10px}
+    .pill{display:inline-block;background:#eef2ff;color:#1f2937;border-radius:9999px;padding:.2rem .6rem;font-size:.75rem;font-weight:700}
+    .muted{color:#6b7280}
+    .right{margin-left:auto}
+    .toolbar{display:flex;gap:.5rem;align-items:center}
+    .input{border:2px solid #0b2440;border-radius:10px;padding:.55rem .75rem}
+    .signin{max-width:480px;margin:3rem auto}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" aria-label="Back to home"><img class="logo" src="https://nyc.cloud.appwrite.io/v1/storage/buckets/68a52c57000dac1b04b3/files/68a52c6800384645c80c/view?project=680e68b10024125b5c0b&mode=admin" alt="St. Paul's School Logo"></a>
+      <div class="main-nav" aria-label="Admin">
+        <a href="/" style="color:#fff;font-weight:600">Home</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-wrap">
+    <h1 class="headline" style="font-size:1.75rem;margin-bottom:.25rem">Administration</h1>
+    <p class="subhead">View pupil enrolments for 2025/26.</p>
+
+    <section id="gate" class="card signin">
+      <div class="card-header"><strong>Sign in</strong></div>
+      <div class="card-body">
+        <p class="muted" style="margin-bottom:.5rem">Authorised emails:</p>
+        <ul class="muted" style="margin-bottom:1rem">
+          <li>acb@stpauls.br (Ana Carolina Belmonte)</li>
+          <li>vmc@stpauls.br (Vanessa Costa)</li>
+          <li>rln@stpauls.br (Roney Lima do Nascimento)</li>
+        </ul>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <input id="adminEmail" type="email" class="input" placeholder="your.name@stpauls.br" style="flex:1;min-width:220px">
+          <input id="adminPass" type="password" class="input" placeholder="Password" style="flex:1;min-width:180px">
+          <button id="enter" class="btn btn-primary">Enter</button>
+        </div>
+        <p id="gateMsg" class="muted" style="margin-top:.75rem"></p>
+      </div>
+    </section>
+
+    <section id="panel" class="card" style="display:none">
+      <div class="card-header">
+        <div class="toolbar">
+          <strong>Enrolments</strong>
+          <input id="search" class="input" placeholder="Search pupil or course" style="margin-left:1rem">
+        </div>
+        <div class="right muted" id="adminUser"></div>
+      </div>
+      <div class="card-body">
+        <div id="status" class="muted" style="margin-bottom:.75rem"></div>
+        <div style="overflow:auto">
+          <table class="table" aria-label="Enrolments table">
+            <thead>
+              <tr>
+                <th>Pupil</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Staff Supervisor</th>
+                <th>Enrolled at</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    const SUPABASE_URL = 'https://gjvtncdjcslnkfctqnfy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqdnRuY2RqY3NsbmtmY3RxbmZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NzM0MDEsImV4cCI6MjA1OTU0OTQwMX0.AzALxUUvYLJJtDkvxt7efJ7bGxeKmzOs-fT5bQOndiU';
+    const ADMINS = new Set(['acb@stpauls.br','vmc@stpauls.br','rln@stpauls.br']);
+    const ACADEMIC_YEAR = '2025/26';
+
+    const gate = document.getElementById('gate');
+    const panel = document.getElementById('panel');
+    const rows = document.getElementById('rows');
+    const status = document.getElementById('status');
+    const adminUser = document.getElementById('adminUser');
+    const search = document.getElementById('search');
+
+    function isAuthorised(email){ return ADMINS.has((email||'').toLowerCase()); }
+
+    function showPanel(email){
+      adminUser.textContent = email;
+      gate.style.display = 'none';
+      panel.style.display = 'block';
+      loadData();
+    }
+
+    document.getElementById('enter').addEventListener('click', ()=>{
+      const email = (document.getElementById('adminEmail').value || '').trim().toLowerCase();
+      const pass = document.getElementById('adminPass').value || '';
+      if (!email.endsWith('@stpauls.br')){ document.getElementById('gateMsg').textContent = 'Please use your @stpauls.br email address.'; return; }
+      if (!isAuthorised(email)){ document.getElementById('gateMsg').textContent = 'This email is not authorised for the admin panel.'; return; }
+      if (pass !== 'CasEnrichment10!'){ document.getElementById('gateMsg').textContent = 'Incorrect password.'; return; }
+      localStorage.setItem('casAdminEmail', email);
+      showPanel(email);
+    });
+
+    const cached = localStorage.getItem('casAdminEmail');
+    if (isAuthorised(cached)){ showPanel(cached); }
+
+    async function loadData(){
+      try{
+        status.textContent = 'Loading…';
+        // 1) Fetch enrolments
+        const url = `${SUPABASE_URL}/rest/v1/CasEnrolments?select=studentName,studentEmail,courseId,enrolledAt&academicYear=eq.${encodeURIComponent(ACADEMIC_YEAR)}&order=enrolledAt.desc`;
+        const res = await fetch(url,{ headers:{ apikey: SUPABASE_ANON_KEY, Authorization:`Bearer ${SUPABASE_ANON_KEY}` }});
+        if(!res.ok) throw new Error(`Failed to load enrolments (${res.status})`);
+        const enrols = await res.json();
+        // 2) Load course details for the set of courseIds
+        const ids = Array.from(new Set(enrols.map(e=>e.courseId))).filter(Boolean);
+        let courseMap = new Map();
+        if (ids.length){
+          const inList = ids.map(encodeURIComponent).join(',');
+          const url2 = `${SUPABASE_URL}/rest/v1/CasEnrichmentOptions?select=courseId,courseName,staffSupervisor&courseId=in.(${inList})`;
+          const res2 = await fetch(url2,{ headers:{ apikey: SUPABASE_ANON_KEY, Authorization:`Bearer ${SUPABASE_ANON_KEY}` }});
+          const data2 = await res2.json();
+          data2.forEach(r=>courseMap.set(r.courseId, r));
+        }
+        const merged = enrols.map(e=>{
+          const c = courseMap.get(e.courseId) || {};
+          return { pupil:e.studentName, email:e.studentEmail, course:c.courseName || e.courseId, staff:c.staffSupervisor||'', at:e.enrolledAt };
+        });
+        render(merged);
+        status.textContent = `${merged.length} record(s)`;
+      }catch(err){
+        console.error(err);
+        status.textContent = 'Could not load data. Please try again later.';
+      }
+    }
+
+    function render(data){
+      const term = (search.value||'').toLowerCase();
+      const list = data.filter(r => !term || r.pupil.toLowerCase().includes(term) || r.course.toLowerCase().includes(term));
+      rows.innerHTML = list.map(r=>{
+        const dt = r.at ? new Date(r.at).toLocaleString('en-GB', { dateStyle:'short', timeStyle:'short' }) : '';
+        return `<tr>
+          <td>${r.pupil}</td>
+          <td class="muted">${r.email || ''}</td>
+          <td>${r.course}</td>
+          <td>${r.staff ? `<span class='pill'>${r.staff}</span>`:''}</td>
+          <td class="muted">${dt}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    search?.addEventListener('input', ()=>loadData());
+  </script>
+</body>
+</html>
+
+

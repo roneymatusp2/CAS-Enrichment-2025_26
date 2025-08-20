@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enrolment — CAS & Enrichment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script defer src="https://kit.fontawesome.com/a2e0b5f76d.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" aria-label="Back to home"><img class="logo" src="https://nyc.cloud.appwrite.io/v1/storage/buckets/68a52c57000dac1b04b3/files/68a52c6800384645c80c/view?project=680e68b10024125b5c0b&mode=admin" alt="St. Paul's School Logo"></a>
+      <div class="main-nav" aria-label="User">
+        <span id="userName" style="color:#fff;font-weight:700"></span>
+        <a href="/" style="color:#fff;font-weight:600">Change pupil</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container" style="padding:2rem 0">
+    <h1 class="headline" style="font-size:2rem;color:#111827">Choose your course</h1>
+    <p class="subhead" id="eligibilityNote">Eligibility: <span id="eligibilityText">Checking…</span></p>
+
+    <div class="glass" style="margin:1rem 0;">
+      <label class="label" for="search">Search</label>
+      <input id="search" class="input" type="text" placeholder="Search by name, description, staff, or leader…">
+    </div>
+
+    <div class="chips" id="quickFilters" aria-label="Quick filters" style="margin-bottom:1rem">
+      <button class="chip active" data-filter="">All</button>
+      <button class="chip" data-filter="Technology">Technology</button>
+      <button class="chip" data-filter="Academic">Academic</button>
+      <button class="chip" data-filter="Media">Media</button>
+    </div>
+    <div id="courses" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem"></div>
+
+    <div id="selected" class="glass" style="display:none;margin-top:1rem">
+      <h2 class="card-title">Selected course</h2>
+      <div id="selectedDetails"></div>
+      <button id="submit" class="btn btn-primary" style="margin-top:.75rem" disabled>
+        <i class="fa-solid fa-paper-plane"></i> Submit Enrolment
+      </button>
+    </div>
+  </main>
+
+  <script type="module">
+    const params = new URLSearchParams(location.search);
+    const userName = params.get('n') || sessionStorage.getItem('casStudentName') || '';
+    const formGroup = params.get('f') || sessionStorage.getItem('casForm') || '';
+    const schoolId = params.get('sid') || sessionStorage.getItem('casStudentId') || '';
+    document.getElementById('userName').textContent = userName;
+    const isL6 = formGroup === 'L6';
+    const eligibilityText = document.getElementById('eligibilityText');
+    eligibilityText.textContent = isL6 ? 'Lower 6 (Eligible). You may choose one course only. Each course accepts up to 3 L6 pupils.' : 'Viewing only.';
+
+    // Load courses from Supabase (CasCoursesAvailability view)
+    const SUPABASE_URL = 'https://gjvtncdjcslnkfctqnfy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqdnRuY2RqY3NsbmtmY3RxbmZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NzM0MDEsImV4cCI6MjA1OTU0OTQwMX0.AzALxUUvYLJJtDkvxt7efJ7bGxeKmzOs-fT5bQOndiU';
+
+    let courses = [];
+    const ACADEMIC_YEAR = '2025/26';
+    let existingEnrolment = null;
+    async function loadCourses(){
+      try{
+        const fields = [
+          'courseId','courseName','courseDescription','category','staffSupervisor','studentLeaders',
+          'maxCapacityTotal','maxCapacityL6','currentEnrolmentTotal','currentEnrolmentL6',
+          'availableSpotsTotal','availableSpotsL6','availabilityStatus','acceptingEnrolments','sortOrder'
+        ].join(',');
+        const url = `${SUPABASE_URL}/rest/v1/CasCoursesAvailability?select=${fields}&order=sortOrder.asc`;
+        const res = await fetch(url, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        if(!res.ok){ throw new Error(`Failed to load courses (${res.status})`); }
+        const data = await res.json();
+        courses = data.map(r => ({
+          id: r.courseId,
+          name: r.courseName,
+          description: r.courseDescription,
+          staff: r.staffSupervisor,
+          leaders: r.studentLeaders,
+          category: r.category,
+          totalLeft: Number(r.availableSpotsTotal ?? (r.maxCapacityTotal - r.currentEnrolmentTotal)),
+          l6Left: Number(r.availableSpotsL6 ?? (r.maxCapacityL6 - r.currentEnrolmentL6)),
+          status: r.availabilityStatus || 'Available',
+          accepting: r.acceptingEnrolments !== false
+        }));
+        await checkExistingEnrolment();
+        render();
+      }catch(err){
+        console.error(err);
+        grid.innerHTML = `<div class="glass" style="padding:1rem;color:#991b1b;background:#fef2f2;border:1px solid #fecaca">Could not load courses. Please refresh the page.</div>`;
+      }
+    }
+
+    const state = { selected: null };
+    const search = document.getElementById('search');
+    const grid = document.getElementById('courses');
+    const selected = document.getElementById('selected');
+    const selectedDetails = document.getElementById('selectedDetails');
+    const submit = document.getElementById('submit');
+
+    function render(filter=''){
+      const f = filter.toLowerCase();
+      const list = courses.filter(c => (
+        c.name.toLowerCase().includes(f) ||
+        c.description.toLowerCase().includes(f) ||
+        (c.staff||'').toLowerCase().includes(f) ||
+        (c.leaders||'').toLowerCase().includes(f) ||
+        (c.category||'').toLowerCase().includes(f)
+      ));
+      grid.innerHTML = list.map(c => {
+        const full = c.totalLeft <= 0 || c.l6Left <= 0;
+        const alreadyChosen = existingEnrolment && existingEnrolment.courseId === c.id;
+        const canSelect = isL6 && !full && c.accepting && !existingEnrolment;
+        const badgeColour = full ? '#dc2626' : (c.totalLeft <= 5 ? '#f59e0b' : '#065f46');
+        return `
+        <div class="glass ${alreadyChosen ? 'selected' : ''}" data-id="${c.id}" data-can="${canSelect?1:0}" tabindex="${canSelect?0:-1}" style="display:flex;flex-direction:column;gap:.5rem;${canSelect?'cursor:pointer':''}">
+          <h3 class="card-title">${c.name}</h3>
+          <p class="card-help">${c.description}</p>
+          <div style="font-size:.9rem;color:#374151">${c.staff ? `<strong>Staff:</strong> ${c.staff}`:''}</div>
+          <div style="font-size:.8rem;color:#6b7280">${c.category ? `<strong>Category:</strong> ${c.category}`:''}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem">
+            <span style="background:${badgeColour};color:#fff;border-radius:9999px;padding:.2rem .55rem;font-size:.75rem;font-weight:700">L6 left: ${c.l6Left} | Total left: ${c.totalLeft}</span>
+            ${alreadyChosen ? `<span style="color:#111827;font-weight:700"><i class='fa-solid fa-user-check'></i> Your course</span>` : (canSelect ? `<button class="btn btn-primary select">Select</button>` : `<span style="color:#6b7280;font-weight:600">${!isL6 ? 'Viewing only' : (existingEnrolment ? 'Already enrolled' : (full ? 'Full' : (c.accepting ? 'Unavailable' : 'Closed')))}</span>`)}
+          </div>
+        </div>`;
+      }).join('');
+    }
+    // Quick filters
+    const quickFilters = document.getElementById('quickFilters');
+    quickFilters.addEventListener('click', (e)=>{
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      quickFilters.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      const term = chip.dataset.filter || '';
+      if (term) { render(term); search.value = term; }
+      else { render(''); search.value = ''; }
+    });
+    await loadCourses();
+
+    search.addEventListener('input', (e)=>render(e.target.value));
+
+    grid.addEventListener('click', (e)=>{
+      const card = e.target.closest('[data-id]');
+      if (!card) return;
+      if (!isL6 || existingEnrolment) return;
+      const can = card.getAttribute('data-can') === '1';
+      if (!can && !e.target.classList.contains('select')) return;
+      if (e.target.classList.contains('select') || can){
+        state.selected = courses.find(c=>c.id===card.dataset.id);
+        selected.style.display = 'block';
+        selectedDetails.textContent = state.selected ? state.selected.name : '';
+        submit.disabled = !state.selected;
+        window.scrollTo({top:document.body.scrollHeight, behavior:'smooth'});
+      }
+    });
+
+    // Keyboard selection (Enter/Space)
+    grid.addEventListener('keydown', (e)=>{
+      if (!(e.key === 'Enter' || e.key === ' ')) return;
+      const card = e.target.closest('[data-id]');
+      if (!card) return;
+      const can = card.getAttribute('data-can') === '1';
+      if (!can) return;
+      e.preventDefault();
+      state.selected = courses.find(c=>c.id===card.dataset.id);
+      selected.style.display = 'block';
+      selectedDetails.textContent = state.selected ? state.selected.name : '';
+      submit.disabled = !state.selected;
+    });
+
+    async function checkExistingEnrolment(){
+      // Build deterministic pseudo email (from session or school id)
+      const emailFromSession = sessionStorage.getItem('casStudentEmail') || '';
+      const pseudo = schoolId ? `${schoolId}@internal.stpauls` : '';
+      const studentEmail = emailFromSession || pseudo;
+      if (!studentEmail) { existingEnrolment = null; return; }
+      try{
+        const url = `${SUPABASE_URL}/rest/v1/CasEnrolments?select=courseId,studentEmail,academicYear,studentName&studentEmail=eq.${encodeURIComponent(studentEmail)}&academicYear=eq.${encodeURIComponent(ACADEMIC_YEAR)}&limit=1`;
+        const res = await fetch(url, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } });
+        const rows = await res.json();
+        existingEnrolment = Array.isArray(rows) && rows.length ? rows[0] : null;
+        if (existingEnrolment){
+          selected.style.display = 'block';
+          selectedDetails.textContent = 'You are already enrolled.';
+          submit.disabled = true;
+        }
+      }catch(e){ existingEnrolment = null; }
+    }
+
+    async function persistEnrolment(){
+      if (!state.selected) return;
+      const courseId = state.selected.id;
+      const pupilName = userName;
+      const emailFromSession = sessionStorage.getItem('casStudentEmail') || '';
+      const pseudoEmail = schoolId ? `${schoolId}@internal.stpauls` : `unknown-${Date.now()}@internal.stpauls`;
+      const studentEmail = emailFromSession || pseudoEmail;
+
+      // Guard: if server already has an enrolment, block
+      if (existingEnrolment){
+        alert('You have already enrolled in a course.');
+        return;
+      }
+
+      try{
+        submit.disabled = true;
+        submit.innerHTML = '<span class="btn-loader" aria-hidden="true"></span>Submitting…';
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/enrol_student_in_course`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            p_course_id: courseId,
+            p_student_email: studentEmail,
+            p_student_name: pupilName,
+            p_form_group: formGroup || (isL6 ? 'L6' : '')
+          })
+        });
+        const text = await res.text();
+        const payload = (()=>{ try { return JSON.parse(text); } catch { return null; } })();
+        if (!res.ok || (payload && payload.success === false)){
+          throw new Error(payload?.message || `Submission failed (${res.status})`);
+        }
+        submit.textContent = 'Enrolment submitted';
+        // Refresh courses to reflect new counts
+        await loadCourses();
+        selectedDetails.innerHTML = `${state.selected.name} — saved.`;
+      }catch(err){
+        console.error(err);
+        submit.disabled = false;
+        submit.textContent = 'Submit Enrolment';
+        alert('Could not submit your enrolment: ' + err.message + '\nIf this persists, please contact IT.');
+      }
+    }
+
+    submit.addEventListener('click', persistEnrolment);
+  </script>
+</body>
+</html>
+
+

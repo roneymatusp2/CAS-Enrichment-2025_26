@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAS & Enrichment — St. Paul's School</title>
+  <meta name="description" content="Identify yourself and choose your single CAS & Enrichment course for 2025/26. Lower 6 only; maximum of three L6 pupils per course.">
+  <meta name="theme-color" content="#001d31">
+  <meta property="og:title" content="CAS & Enrichment — St. Paul's School">
+  <meta property="og:description" content="Lower 6 pupils: choose your single enrichment course for 2025/26.">
+  <meta property="og:image" content="/assets/img/social-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site.css">
+  <script defer src="https://kit.fontawesome.com/a2e0b5f76d.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <noscript>
+    <div style="padding:1rem;background:#fde68a;color:#92400e;text-align:center">This site requires JavaScript for enrolment. Please enable JavaScript and refresh.</div>
+  </noscript>
+  <header class="site-header">
+    <div class="container header-inner">
+      <img class="logo" src="https://nyc.cloud.appwrite.io/v1/storage/buckets/68a52c57000dac1b04b3/files/68a52c6800384645c80c/view?project=680e68b10024125b5c0b&mode=admin" alt="St. Paul's School Logo">
+      <div class="main-nav" aria-label="Admin" style="margin-left:auto">
+        <a href="/pages/admin.html" style="color:#fff;font-weight:600">Admin</a>
+      </div>
+        <div class="hero-brand">
+          <div class="split-banner split-banner--large fade-in" aria-label="CAS & Enrichment header">
+            <div class="bar">
+              <div class="row">
+                <div>
+                  <h1 class="title">CAS &amp; Enrichment</h1>
+                  <p class="tag">Course Selection 2025/26</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-inner">
+        <div id="auth-view">
+        <div class="hero-card glass">
+          <!-- Step 1: Find Student -->
+          <form id="form-find-student">
+            <h3 class="card-title">Identify Yourself</h3>
+            <p class="card-help">Enter your full name as it appears in school records.</p>
+            <div class="input-group">
+              <label for="fullName" class="label">Full Name</label>
+              <input type="text" id="fullName" class="input" placeholder="e.g., John Smith" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full">Find My Details</button>
+          </form>
+
+          <!-- Step 2: Verify Code (Initially Hidden) -->
+          <form id="form-verify-code" class="hidden">
+            <h3 class="card-title">Verify Your Email</h3>
+            <p class="card-help">Welcome, <span id="student-name-display" style="font-weight: 600;"></span>!</p>
+            <p class="card-help">Please enter your school email to receive a verification code.</p>
+            <div class="input-group">
+              <label for="email" class="label">School Email</label>
+              <input type="email" id="email" class="input" placeholder="your.name@stpauls.br" required>
+              <button type="button" id="sendCodeBtn" class="btn btn-secondary" style="margin-top: 0.5rem;">Send Code</button>
+            </div>
+            <div class="input-group">
+              <label for="token" class="label">Verification Code</label>
+              <input type="text" id="token" class="input" placeholder="6-digit code" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code">
+            </div>
+            <button type="submit" id="verifyBtn" class="btn btn-primary w-full">Verify & Continue</button>
+            <button type="button" id="change-name-button" class="button-link" style="margin-top: 1rem;">← Use a different name</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Enrolment View (Initially Hidden) -->
+      <div id="enrolment-view" class="hidden">
+        <div class="hero-card glass">
+          <h3 class="card-title">Select Your Course</h3>
+          <!-- Course selection UI will go here -->
+          <div id="course-list"></div>
+          <button id="sign-out-button" class="btn btn-primary w-full" style="margin-top: 1rem;">Sign Out</button>
+        </div>
+      </div>
+      
+      <!-- Hidden element for email display -->
+      <div id="student-email-display" class="hidden"></div>
+    </section>
+
+    <!-- Optional sections removed for a cleaner entry-only experience -->
+  </main>
+
+
+  <script src="/assets/js/app.js" type="module"></script>
+  <script>
+    // Basic theme toggle (optional enhancement)
+    (function(){
+      const meta = document.querySelector('meta[name="theme-color"]');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+      function apply(){ meta && meta.setAttribute('content', prefersDark.matches ? '#0b1220' : '#001d31'); }
+      prefersDark.addEventListener('change', apply); apply();
+    })();
+  </script>
+</body>
+</html>
+
+

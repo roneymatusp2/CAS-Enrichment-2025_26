@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CAS & Enrichment enrolment portal for St. Paul's School – select courses and submit your preference securely.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#001d31" id="themeColorMeta">
+<title>CAS & Enrichment Enrolment 2025/26 - St. Paul's School</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Configuration Variables */
+:root {
+    --indigo-blue: #001d31;
+    --ruby-red: #820021;
+    --british-green: #002718;
+    --gold: #FFD700;
+    --amber: #f59e0b; /* For limited capacity */
+    --red: #dc2626;    /* For full capacity/errors */
+}
+/* Base Styles */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', sans-serif;
+    background: #ffffff;
+    color: #333;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+/* Dark mode base */
+body.dark { background: #0b1220; color: #e5e7eb; }
+
+/* Skip link */
+.skip-link { position: absolute; left: 0; top: -100px; background: #fff; color: #111827; padding: .75rem 1rem; z-index: 3000; border-radius: 0 0 .5rem .5rem; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.skip-link:focus { top: 0; outline: 3px solid var(--gold); }
+/* Header Styling */
+.header-banner {
+    background: linear-gradient(90deg, var(--indigo-blue) 0%, var(--indigo-blue) 50%, var(--ruby-red) 50%, var(--ruby-red) 100%);
+    padding: 2rem 0;
+    box-shadow: 0 6px 20px rgba(0, 29, 49, 0.4);
+    position: relative;
+    margin-bottom: 2rem;
+}
+.dark .header-banner { box-shadow: 0 6px 20px rgba(0,0,0,.6); }
+.header-banner::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--british-green) 0%, #ffffff 50%, var(--british-green) 100%);
+}
+.school-logo { height: 4rem; width: auto; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4)); }
+
+/* Container adjustments */
+.main-container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* Form Styling */
+.enrolment-form {
+    background: white; border-radius: 15px; padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 29, 49, 0.15);
+    border: 2px solid var(--ruby-red); margin: 2rem 0;
+}
+body.dark .enrolment-form { background: #0f172a; border-color: #334155; box-shadow: 0 8px 25px rgba(0,0,0,.35); }
+/* Course Grid and Card Styling */
+.course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+.course-card {
+    background: white; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s ease;
+    border: 2px solid transparent; cursor: pointer; display: flex; flex-direction: column; height: 100%;
+    animation: fadeUp .35s ease both;
+}
+body.dark .course-card { background: #0f172a; box-shadow: 0 4px 15px rgba(0,0,0,.35); }
+.course-card:focus { outline: 3px solid var(--gold); outline-offset: 2px; }
+.course-card:hover:not(.disabled-card) { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(130,0,33,0.2); border-color: var(--ruby-red); }
+.course-card.selected { border-color: var(--british-green); background: linear-gradient(135deg, #f0f9f0 0%, #ffffff 100%); }
+.course-card.full { opacity: 0.7; background: #f8f8f8; }
+.course-card.enrolled-in { border-color: var(--indigo-blue); background: #eef2f7; }
+.course-card.disabled-card { cursor: not-allowed; }
+
+.course-header { background: linear-gradient(135deg, var(--indigo-blue) 0%, var(--ruby-red) 100%); padding: 1rem; color: white; }
+.course-content { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+/* Capacity Badges (Dual Counters) */
+.capacity-badges-container { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
+.capacity-badge {
+    color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; background: var(--british-green);
+}
+.capacity-badge.limited { background: var(--amber); }
+.capacity-badge.full { background: var(--red); }
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--indigo-blue) 0%, var(--ruby-red) 100%);
+    color: white; padding: 0.75rem 2rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(130,0,33,0.3); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary { background: white; color: var(--indigo-blue); border: 2px solid var(--indigo-blue); padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+.btn-secondary:hover { background: var(--indigo-blue); color: white; }
+.btn-secondary.active { background: var(--indigo-blue); color: white; }
+body.dark .btn-secondary { background: #0b1220; color: #e5e7eb; border-color: #64748b; }
+body.dark .btn-secondary:hover { background: #1e293b; color: #fff; border-color: #94a3b8; }
+
+/* Inputs */
+.search-input { width: 100%; padding: 1rem; border: 2px solid var(--indigo-blue); border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease; background-color: #fff; }
+.search-input:focus { outline: none; border-color: var(--ruby-red); }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 2rem 0; }
+.stat-card { background: white; padding: 1.5rem; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; }
+.stat-number { font-size: 2.5rem; font-weight: 800; color: var(--ruby-red); }
+
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: white; padding: 2rem; border-radius: 15px; max-width: 500px; width: 90%; text-align: center; }
+.success-icon { font-size: 4rem; color: var(--british-green); margin-bottom: 1rem; }
+.error-icon { font-size: 4rem; color: var(--ruby-red); margin-bottom: 1rem; }
+body.dark .modal-content { background: #0f172a; color: #e5e7eb; }
+
+/* Loader */
+#loader { position: fixed; inset: 0; background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.spinner { border: 8px solid #f3f3f3; border-top: 8px solid var(--indigo-blue); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+.btn-loader { border: 3px solid rgba(255,255,255,0.5); border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; margin-right: 8px; }
+@keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+
+/* Fade-up animation for cards */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* A11y */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
+
+/* Hide statistics */
+[aria-label="Enrolment Statistics"] { display: none !important; }
+
+/* Back to top button */
+#backToTop { position: fixed; right: 1rem; bottom: 1rem; display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 9999px; background: var(--ruby-red); color: #fff; box-shadow: 0 10px 25px rgba(0,0,0,.25); z-index: 1200; }
+#backToTop:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-logo-section { flex-direction: column; text-align: center; gap: 1rem; }
+  .main-title { font-size: 2rem; }
+  .course-grid { grid-template-columns: 1fr; }
+  .capacity-badges-container { flex-direction: row; align-items: flex-start; gap: 0.5rem; margin-top: 0.5rem; }
+  .course-header .flex { flex-direction: column; }
+  .filter-search-container { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- Skip to content -->
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="text-center">
+    <div class="spinner mb-4 mx-auto"></div>
+    <p class="text-lg font-semibold text-gray-700">Preparing your CAS & Enrichment experience…</p>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="header-banner">
+  <div class="main-container">
+    <div class="flex items-center header-logo-section">
+      <img src="https://stpaulsbrsp.sharepoint.com/sites/portal/SiteAssets/imgs/navbar-brand.png" alt="St. Paul's School Logo" class="school-logo">
+      <div class="flex-1">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 main-title">CAS & Enrichment</h1>
+        <p class="text-xl text-white opacity-90">Course Selection 2025/26</p>
+      </div>
+      <div class="ml-4">
+        <button id="themeToggle" class="btn-secondary" aria-pressed="false" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button id="changePupil" class="btn-secondary ml-2" style="display:none" aria-label="Change pupil">
+          <i class="fas fa-user-edit"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-container" id="main">
+
+  <!-- Statistics Dashboard -->
+  <section aria-label="Enrolment Statistics">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-number" id="totalCourses">0</div><div class="text-gray-600">Total Courses</div></div>
+      <div class="stat-card"><div class="stat-number" id="totalL6Spots">0</div><div class="text-gray-600">Total L6 Spots</div></div>
+      <div class="stat-card"><div class="stat-number" id="enrolledL6Count">0</div><div class="text-gray-600">L6 Pupils Enrolled</div></div>
+      <div class="stat-card"><div class="stat-number" id="totalOverallSpots">0</div><div class="text-gray-600">Total Overall Spots</div></div>
+    </div>
+  </section>
+
+  
+
+  <!-- Entry: CAS & Enrichment name capture -->
+  <section class="enrolment-form" id="entrySection">
+    <div class="flex items-start md:items-center gap-4 mb-6">
+      <i class="fas fa-hat-wizard text-3xl text-indigo-900" aria-hidden="true"></i>
+      <div class="flex-1">
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-1">CAS & Enrichment</h2>
+        <p class="text-gray-600">Please enter your full name exactly as registered to continue.</p>
+      </div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4 items-start">
+      <div class="md:col-span-2">
+        <label for="pupilEntryName" class="block text-sm font-semibold text-gray-700 mb-2">Your full name</label>
+        <input id="pupilEntryName" class="search-input" type="text" placeholder="e.g. Maria Eduarda Ribeiro" autocomplete="name" aria-describedby="nameHelp">
+        <p id="nameHelp" class="text-xs text-gray-500 mt-2">We will match your name securely with school records.</p>
+      </div>
+      <div class="flex items-end">
+        <button id="startEnrolment" class="btn-primary w-full md:w-auto"><i class="fas fa-arrow-right mr-2" aria-hidden="true"></i>Continue</button>
+      </div>
+    </div>
+    <div id="entryFeedback" class="mt-4" style="display:none" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- Already Enrolled -->
+  <section id="alreadyEnrolledMessage" class="enrolment-form" style="display:none" role="status">
+    <div class="text-center p-6">
+      <i class="fas fa-user-check text-5xl mb-4" style="color:var(--british-green);" aria-hidden="true"></i>
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">You Are Already Enrolled</h2>
+      <p class="text-gray-600 mb-6">Our records indicate that you have already selected a course for the 2025/26 academic year.</p>
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <h3 class="font-semibold text-gray-900 mb-2">Your Current Course:</h3>
+        <p id="enrolledCourseDetails" class="font-bold text-lg" style="color:var(--indigo-blue);"></p>
+      </div>
+      <p class="text-sm text-gray-500 mt-4">If you believe this is an error, please contact the CAS Coordinator.</p>
+    </div>
+  </section>
+
+  <!-- Enrolment Form -->
+  <section class="enrolment-form" id="enrolmentSection" style="display:none">
+    <div class="flex items-center gap-4 mb-6">
+      <i class="fas fa-user-graduate text-3xl text-indigo-900" aria-hidden="true"></i>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Pupil Enrolment</h2>
+        <p class="text-gray-600">Confirm your details and select your preferred course below.</p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div>
+        <label for="studentName" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+        <input type="text" id="studentName" class="search-input" placeholder="Loading name..." readonly>
+      </div>
+      <div>
+        <label for="formGroupDisplay" class="block text-sm font-semibold text-gray-700 mb-2">Form Group (Eligibility)</label>
+        <input type="text" id="formGroupDisplay" class="search-input" placeholder="Checking eligibility..." readonly>
+        <input type="hidden" id="formGroup" value="">
+      </div>
+      <div>
+        <label for="academicYearDisplay" class="block text-sm font-semibold text-gray-700 mb-2">Academic Year</label>
+        <input type="text" id="academicYearDisplay" class="search-input" value="2025/26" readonly>
+      </div>
+    </div>
+
+    <div id="selectedCourseInfo" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200" style="display:none" aria-live="polite">
+      <h3 class="font-semibold text-gray-900 mb-2">Selected Course:</h3>
+      <div id="selectedCourseDetails"></div>
+    </div>
+
+    <div class="mt-6">
+      <div id="actionContainer">
+        <button id="submitEnrolment" class="btn-primary w-full" disabled>
+          <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i>
+          Submit Enrolment
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search and Filter Controls -->
+  <section class="mb-6 mt-8" id="searchFilterSection" style="display:none">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Browse Available Courses</h2>
+    <div class="flex gap-4 items-center filter-search-container">
+      <div class="flex-1 w-full">
+        <div class="relative">
+          <i class="fas fa-search absolute left-4 top-4 text-gray-500" aria-hidden="true"></i>
+          <input type="text" id="searchInput" class="search-input pl-12" placeholder="Search by name, description, staff, or leader..." aria-label="Search Courses">
+        </div>
+      </div>
+      <div class="flex gap-2 w-full md:w-auto" role="group" aria-label="Filter Courses">
+        <button class="btn-secondary filter-btn active flex-1" data-filter="all" aria-pressed="true">All</button>
+        <button class="btn-secondary filter-btn flex-1" data-filter="available" aria-pressed="false">Available</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instructions -->
+  <div id="instructionsSection" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6" role="note" style="display:none">
+    <div class="flex items-start gap-3">
+      <i class="fas fa-info-circle text-blue-600 mt-1" aria-hidden="true"></i>
+      <div>
+        <h3 class="font-semibold text-blue-900 mb-1">Enrolment Instructions & Rules (Lower 6)</h3>
+        <ul class="text-blue-800 text-sm space-y-1 list-disc ml-4">
+          <li>Enrolment is currently restricted to Lower 6 pupils (verified via whitelist).</li>
+          <li>Each L6 pupil may select <strong>one course only</strong>.</li>
+          <li>L6 Capacity Limit: Maximum <strong>3 Lower 6 pupils</strong> per course.</li>
+          <li>Total Capacity Limit: Maximum <strong>25 pupils total</strong> per course (all year groups).</li>
+          <li>Enrolment is first-come, first-served.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Courses Grid -->
+  <section id="coursesContainer" aria-live="polite" style="display:none">
+    <div class="course-grid" id="coursesGrid"></div>
+  </section>
+</main>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal" style="display:none" role="dialog" aria-labelledby="successModalTitle" aria-modal="true">
+  <div class="modal-content">
+    <div class="success-icon"><i class="fas fa-check-circle" aria-hidden="true"></i></div>
+    <h2 id="successModalTitle" class="text-2xl font-bold text-gray-900 mb-4">Enrolment Successful!</h2>
+    <p class="text-gray-600 mb-6">You have been successfully enrolled in your selected course for the 2025/26 academic year.</p>
+    <button id="closeSuccessModal" class="btn-primary">Continue</button>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="errorModal" class="modal" style="display:none" role="dialog" aria-labelledby="errorModalTitle" aria-modal="true">
+  <div class="modal-content">
+    <div class="error-icon"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i></div>
+    <h2 id="errorModalTitle" class="text-2xl font-bold text-gray-900 mb-4">Enrolment Error</h2>
+    <p class="text-gray-600 mb-6" id="errorMessage">An error occurred during enrolment. Please try again.</p>
+    <button id="closeErrorModal" class="btn-primary">Acknowledge</button>
+  </div>
+</div>
+
+<!-- Back to top -->
+<button id="backToTop" aria-label="Back to top" title="Back to top">
+  <i class="fas fa-arrow-up"></i>
+  <span class="sr-only">Back to top</span>
+  </button>
+
+<script>
+(function() {
+  'use strict';
+
+  // ────────────────────────────────────────────────────────────────────
+  // CONFIGURATION & STATE
+  // ────────────────────────────────────────────────────────────────────
+  // SharePoint removed – now using Supabase only
+
+  const ACADEMIC_YEAR = '2025/26';
+  const L6_MAX_CAPACITY = 3;
+  const TOTAL_MAX_CAPACITY = 25;
+  const ELIGIBLE_FORM_GROUP = 'L6';
+
+  const SP_COLUMNS = {
+    AcademicYear: 'AcademicYear',
+    StudentEmail: 'StudentEmail',
+    StudentName: 'StudentName',
+    CourseId: 'CourseId',
+    CourseName: 'CourseName',
+    FormGroup: 'FormGroup',
+    Status: 'Status',
+    Timestamp: 'Created'
+  };
+
+  let selectedCourse = null;
+  let enrollments = {};
+  let currentUser = null;
+  let l6Whitelist = new Set();
+  let l6SignatureMap = new Map();
+  let l6Entries = [];
+  let isL6Eligible = false;
+  let currentFilter = 'all';
+  let isSharePointAvailable = false;
+  let isEnrolled = false;
+  let isLoading = false;
+  let matchedStudent = null;
+
+  // ────────────────────────────────────────────────────────────────────
+  // THEME & UTILITIES
+  // ────────────────────────────────────────────────────────────────────
+  const THEME_STORAGE_KEY = 'cas_theme';
+  function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    document.body.classList.toggle('dark', isDark);
+    const meta = document.getElementById('themeColorMeta');
+    if (meta) meta.setAttribute('content', isDark ? '#0b1220' : '#001d31');
+    const toggle = document.getElementById('themeToggle');
+    if (toggle) toggle.setAttribute('aria-pressed', String(isDark));
+  }
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // COMPLETE COURSES DATA (44 COURSES)
+  // ────────────────────────────────────────────────────────────────────
+  const coursesData = [
+    { id:'act-out-cast-f1-f2', name:'Act Out - Cast (F1 & F2)', description:'Support Form 1 and 2 students in producing and performing their musical; promotes art and teamwork.', staff:'Meire Goto and Daniela Stipp', leaders:'Summer Itaborai, Rafaela Renzo, Rachel de Barros Gurney', category:'Performing Arts', enrolledL6:0, enrolledTotal:0 },
+    { id:'act-out-stage-design-f3-f5', name:'Act out- Stage design  (F3, F4 & F5)', description:'Learn theatre stage design: sets, costumes, props, scores and lights for Act Out productions.', staff:'Rodrigo Seidl', leaders:'Sofia Pinedo, Daphne Polizzi', category:'Performing Arts', enrolledL6:0, enrolledTotal:0 },
+    { id:'amor-rosa', name:'Amor Rosa', description:'Collect plastic caps to raise funds for wigs for cancer patients via NGO Amor Rosa.', staff:'Lucas Neves', leaders:'Elisa de Toledo Piza, Gabriela Chuahy', category:'Community Service', enrolledL6:0, enrolledTotal:0 },
+    { id:'architecture-design-club', name:'Architecture Design Club', description:'Portfolio drawing; then use SketchUp/AutoCAD to bring work to life.', staff:'Marcos Müller', leaders:'Mathias Storrer, Olivia Goncalves', category:'Design & Technology', enrolledL6:0, enrolledTotal:0 },
+    { id:'board-games', name:'Board Games', description:'Relax and focus energy through classic board games and cognitive play.', staff:'Heitor Miranda', leaders:'Charlotte Germscheid, Pedro Castro Alves', category:'Recreation & Strategy', enrolledL6:0, enrolledTotal:0 },
+    { id:'business-shark-tank', name:'Business - Shark Tank', description:'Entrepreneurship programme (IGCSE links), quizzes, presentations, and a Shark Tank final.', staff:'Ivan Dias', leaders:'Ana Clara Herndl, Luis Felipe Herndl, Luca Leonard, Nina Delarco Aldrighi Caputo (F5)', category:'Business & Economics', enrolledL6:0, enrolledTotal:0 },
+    { id:'campos-do-futuro', name:'Campos do Futuro', description:'Refurbish football fields in underprivileged areas; community exercise and enjoyment.', staff:'Patrick Kelly', leaders:'Jonah Reade, Luca Leite', category:'Community Service', enrolledL6:0, enrolledTotal:0 },
+    { id:'colouring-bobby-goods', name:'Colouring bobby goods', description:'Teach children tricks for colouring Bobby Goods books.', staff:'Taluan Nogueira', leaders:'Mia Remsen, Carolina Piani', category:'Arts & Crafts', enrolledL6:0, enrolledTotal:0 },
+    { id:'digital-art-for-beginners', name:'Digital Art for Beginners', description:'Create simple art using Canva, GarageBand or other tools.', staff:'Jonathan Tarrant', leaders:'Luiz Henrique Abrao, Louis-Alexandre Legare', category:'Digital Arts', enrolledL6:0, enrolledTotal:0 },
+    { id:'ees-economics-entrepreneurship-society', name:'EES – Economics and Entrepreneurship Society', description:'Explore how the economy works and how businesses are built; Shark Tank pitches and more.', staff:'Shelly Viegas', leaders:'Lucas Lafeldt, Rafael Prado', category:'Business & Economics', enrolledL6:0, enrolledTotal:0 },
+    { id:'ai-ml-python', name:'Empowering your Creative skills with Artificial Intelligence and Machine Learning with Python', description:'AI/ML theory and simple dataset analysis to generate insights.', staff:'Roney Lima do Nascimento', leaders:'Giordano Piwowarczyk Araujo, Zachary Drammeh', category:'Technology & Data Science', enrolledL6:0, enrolledTotal:0 },
+    { id:'finance-club', name:'Finance Club', description:'Financial literacy, business concepts, stock-market topics; engaging and hands-on.', staff:'Isabel Mussnich', leaders:'Eric Bartunek', category:'Business & Economics', enrolledL6:0, enrolledTotal:0 },
+    { id:'f1-f2-f3-buddies', name:'F1, F2 and F3 Buddies', description:'Support for F1–F3 in Maths, Sciences, History, Portuguese; transition help for F1.', staff:'Lauren Rae', leaders:'Manuela Giannella, Sofia Mattar, Maria Brandt de Carvalho', category:'Mentoring & Support', enrolledL6:0, enrolledTotal:0 },
+    { id:'global-lens', name:'Global Lens: Understanding the World Today', description:'Discuss current events; link news to business, economics and history for global awareness.', staff:'Diego Silva', leaders:'Paula de Souza, Laura Gurney', category:'Global Affairs & Politics', enrolledL6:0, enrolledTotal:0 },
+    { id:'healthy-minds', name:'Healthy minds', description:'Raise funds and activities for GRAACC and PROATA.', staff:'Douglas Jerkins', leaders:'Valentina Todelo', category:'Community Service', enrolledL6:0, enrolledTotal:0 },
+    { id:'humanise-project', name:'Humanise Project', description:'Collect and donate books, clothes, essentials; run events (e.g., movie day).', staff:'Franciscco Shreiber and Raphael Martins', leaders:'Claudia Gontijo, Daniel Ariaz, Fernando Nunes', category:'Community Service', enrolledL6:0, enrolledTotal:0 },
+    { id:'mini-orchestra', name:'Instrument Practice/Mini Orquestra Enrichment', description:'Group performances and adapted orchestral arrangements; strengthen technique, rhythm, timing.', staff:'Alan Mann and Caio Oliveira', leaders:'Leticia Galvão dos Reis, Julia Santana', category:'Performing Arts', enrolledL6:0, enrolledTotal:0 },
+    { id:'intellectual-games', name:'Intellectual Games', description:"Chess, Sudoku, Checkers, Rubik's; strategies and logic behind each game.", staff:'Nik Radia', leaders:'Alec Conolly, Lucía Valeri Hernández', category:'Recreation & Strategy', enrolledL6:0, enrolledTotal:0 },
+    { id:'john-locke-essay', name:'john locke essay writing competition', description:'Join the prestigious competition; write essays on philosophy, politics, economics, theology.', staff:'Ronnie Gilchrist and Luiz Sousa', leaders:'Mariana Gurevich, Catarina Carbone', category:'Academic & Writing', enrolledL6:0, enrolledTotal:0 },
+    { id:'knitting-club', name:'Knitting Club', description:'Crochet 10×10 squares; assemble a large blanket; service-oriented outcome.', staff:'Rodrigo Carvalho', leaders:'Stella Gebara, Manuela Musa', category:'Arts & Crafts', enrolledL6:0, enrolledTotal:0 },
+    { id:'lions-den-news', name:'Lions Den News', description:'Official sports magazine: org/comms, box scores, photo coverage, publishing.', staff:'Rosemary Lawrence', leaders:'Kabir Jaspal, (Giulia Monteiro - F5), (Fernanda Alves - F5)', category:'Journalism & Media', enrolledL6:0, enrolledTotal:0 },
+    { id:'mao-branca-project', name:'Mão Branca Project -- Creativity & Service', description:'Creative activities (letters, drawing, crafts) gifted to elderly at Associação Mão Branca.', staff:'Mariana Corullón', leaders:'Isabella Andere, Juliana Abate', category:'Community Service', enrolledL6:0, enrolledTotal:0 },
+    { id:'martial-arts-club', name:'Martial Arts Club', description:'Safe environment to learn Boxing & Muay Thai; skill development through activities.', staff:'Daniel Hall', leaders:'Raphael Rosset, Eduardo Rizkallah, Rafael Hartmann', category:'Sports & Fitness', enrolledL6:0, enrolledTotal:0 },
+    { id:'maths-competition-obmep', name:'Maths competition club - OBMEP', description:'Approach OBMEP problems; PT terminology; logical reasoning and creative approaches.', staff:'Guilherme da Silva Costa', leaders:'Sofia Bertol, Nicole Buzaid', category:'Academic & STEM', enrolledL6:0, enrolledTotal:0 },
+    { id:'model-united-nations', name:'Model United Nations', description:'UN simulation: research, debate, negotiate, draft resolutions; public speaking & diplomacy.', staff:'Natalia Lima', leaders:'Anna Spritzer Sapoznik, Athina Kissajikian', category:'Global Affairs & Politics', enrolledL6:0, enrolledTotal:0 },
+    { id:'mun-enrichment', name:'MUN Enrichment', description:'UN simulation extension; deepen understanding of international relations and policy-making.', staff:'Magda Moreira de Melo', leaders:'Luisa Borges Zema', category:'Global Affairs & Politics', enrolledL6:0, enrolledTotal:0 },
+    { id:'politics-current-affairs', name:'Politics & Current Affairs Society', description:'Explore pressing political issues and global developments via debates and activities.', staff:'Kibuuka Katende Mutyaba', leaders:'Felipe Rizkallah, Otavio Abdalla', category:'Global Affairs & Politics', enrolledL6:0, enrolledTotal:0 },
+    { id:'projeto-muraliza', name:'Projeto Muraliza', description:'Partner with TETO; raise funds; build emergency housing; paint a community mural.', staff:'Zoe Sanger', leaders:'Isabella Securato, Luiza Cavalcanti', category:'Community Service & Art', enrolledL6:0, enrolledTotal:0 },
+    { id:'riddles-mind-games', name:'Riddles and mind game competition', description:'Logic puzzles, strategy, wordplay; build critical thinking, memory, teamwork.', staff:'Steven Spence', leaders:'Antonia Prado Junqueira Franco, Ricardo Putinati', category:'Recreation & Strategy', enrolledL6:0, enrolledTotal:0 },
+    { id:'suturing-practice', name:'Suturing (medical suturing practice)', description:'Practise different sutures on kits; when to use each type and material.', staff:'Camila Hartmann', leaders:'Rafaela Thomas, Diogo Guerra', category:'Academic & STEM', enrolledL6:0, enrolledTotal:0 },
+    { id:'swenext-club', name:'SWENext Club', description:'Affiliated with SWE; talks with engineers, volunteering, team activities.', staff:'Eduardo Bagnariolli', leaders:'Luiza Cavalcanti, Catarina Muro & Sophie Chamberlain', category:'Academic & STEM', enrolledL6:0, enrolledTotal:0 },
+    { id:'the-lion-news', name:'The lion news', description:'Encourage younger pupils to engage in "The Lion News" and school community.', staff:'Glen Trevaskis', leaders:'Marina Stingelin, Nina de Lima', category:'Journalism & Media', enrolledL6:0, enrolledTotal:0 },
+    { id:'the-lion-news-economics', name:'The Lion News - Economics', description:'Support economics articles for The Lion News; write and publish regularly.', staff:'Ivana Lalovic', leaders:'Marina Liaw, Giovanna Castro', category:'Journalism & Media', enrolledL6:0, enrolledTotal:0 },
+    { id:'well-being-hub', name:'Well being hub', description:'Safe space for girls from all years to talk and seek advice, supervised by the hub.', staff:'Brena Moura', leaders:'Stella Neubauer, Beatriz  Bodra', category:'Wellbeing & Support', enrolledL6:0, enrolledTotal:0 },
+    { id:'badminton-activity', name:'Badminton Activity', description:'Three Badminton Courts; games for fun/competition. F1–F5.', staff:'Peter Green', leaders:'Mia Overmeer Pastore, Mariano Alterio', category:'Sports & Fitness', enrolledL6:0, enrolledTotal:0 },
+    { id:'citizen-science', name:'Citizen Science', description:'Help real scientists by collecting data and observations for global projects.', staff:'Mariana De Marchi', leaders:'Sofia Carramaschi, Luca Papa', category:'Academic & STEM', enrolledL6:0, enrolledTotal:0 },
+    { id:'french-club', name:'French Club', description:'Practise French with games, songs, short films and creative activities.', staff:'Cícero Oliveira', leaders:'Max Zgouridi', category:'Languages & Culture', enrolledL6:0, enrolledTotal:0 },
+    { id:'history-world-cups', name:'History of the Football World Cups', description:'Explore tournaments, iconic players, historic matches and cultural impact.', staff:'Bruno Lanfranchi', leaders:'Felipe Zelmanovits, João Barcellos', category:'History & Culture', enrolledL6:0, enrolledTotal:0 },
+    { id:'podcast-workshop-connect', name:'Podcast workshop: Stories that connect', description:'Research, script, record and edit episodes on inclusion, mental health, etc.', staff:'Fabio Almeida', leaders:'Guilherme de Moraes, Pedro Borges Zema', category:'Journalism & Media', enrolledL6:0, enrolledTotal:0 },
+    { id:'powerful-podcasts', name:'Powerful Podcasts', description:'Plan, produce and distribute podcasts; research, structure, record, edit and publish.', staff:'Robert Best', leaders:'João Castello Branco', category:'Journalism & Media', enrolledL6:0, enrolledTotal:0 },
+    { id:'psychology-film-club', name:'Psychology-themed Film Club', description:"Discuss psychological aspects of classic films (e.g., Cuckoo's Nest, Good Will Hunting).", staff:'Victoria Moreira', leaders:'Vitória Daud, Stela McCarthy', category:'Arts & Culture', enrolledL6:0, enrolledTotal:0 },
+    { id:'intro-philosophy-critical-thinking', name:'Introduction to basic philosophy and critical thinking', description:'Programme for teens to build self-agency, communication skills and intellectual fortitude.', staff:'Barry Hallinan', leaders:'Max Simonsen, Ricardo Putinati', category:'Academic & Philosophy', enrolledL6:0, enrolledTotal:0 },
+    { id:'sustainability-club', name:'Sustainability Club', description:'Zero-waste school initiative; work with "Amanhã, Hoje" project; green stamp aim.', staff:'Joao Bosco Feitosa and Robin Backhouse', leaders:'Sophia Castello Branco, Antonio Loos; Thomas Bicudo', category:'Environment & Sustainability', enrolledL6:0, enrolledTotal:0 },
+    { id:'breathing-meditation', name:'Breathing exercises and guided meditation (Multi-purpose Room)', description:'Breathing techniques; NSDR; self-management strategies; CEB/Yoga pranayamas.', staff:'Felipe Futada', leaders:'', category:'Wellbeing & Support', enrolledL6:0, enrolledTotal:0 }
+  ];
+
+  // ────────────────────────────────────────────────────────────────────
+  // ENHANCED NAME MATCHING UTILITIES
+  // ────────────────────────────────────────────────────────────────────
+  const PARTICLES = new Set(['de','da','do','das','dos','di','del','della','e','y','la','le','du','van','von']);
+
+  function normalizeName(str) {
+    if (typeof str !== 'string') return '';
+    return str
+      .replace(/\[(\s*)pupil(\s*)\]|\((\s*)pupil(\s*)\)/gi, '') // Remove [Pupil] or (Pupil)
+      .replace(/[,"']/g, ' ')                                   // Replace commas/quotes with space
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')         // Remove diacritics
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function tokeniseName(str) { 
+    return normalizeName(str).split(' ').filter(token => token && !PARTICLES.has(token)); 
+  }
+
+  function nameSignature(str) { 
+    return tokeniseName(str).sort().join('|'); 
+  }
+
+  function isSubsetTokens(a, b) { 
+    const setB = new Set(b); 
+    for (const token of a) {
+      if (!setB.has(token)) return false;
+    }
+    return true; 
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // SharePoint utilities removed
+
+  // ────────────────────────────────────────────────────────────────────
+  // FIXED WHITELIST PROCESSING (HANDLES CORRECT JSON STRUCTURE)
+  // ────────────────────────────────────────────────────────────────────
+  async function fetchWhitelist() {
+    console.log("Attempting to fetch whitelist from:", WHITELIST_URL);
+    try {
+      const response = await fetch(WHITELIST_URL, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'same-origin'
+      });
+
+      if (!response.ok) {
+        const errorMessage = await getSharePointErrorMessage(response);
+        throw new Error(`Failed to fetch whitelist. ${errorMessage}`);
+      }
+
+      const rawText = await response.text();
+      console.log("Raw Whitelist JSON Response (Preview):", rawText.substring(0, 500) + (rawText.length > 500 ? "..." : ""));
+
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (parseError) {
+        throw new Error("Whitelist file content is not valid JSON.");
+      }
+
+      // ✅ FIXED: Handle the actual JSON structure
+      let studentsArray = null;
+      
+      if (data.students && Array.isArray(data.students)) {
+        // New format: {students: [...], academicYear: "2025/26", ...}
+        studentsArray = data.students;
+        console.log(`Processing whitelist for ${data.academicYear || 'unknown year'}, ${data.formGroup || 'unknown group'}`);
+      } else if (Array.isArray(data)) {
+        // Old format: [...]
+        studentsArray = data;
+      } else {
+        console.warn("Whitelist JSON format not recognised. Expected {students: [...]} or [...]");
+        return;
+      }
+
+      // Process the students array
+      studentsArray.forEach(item => {
+        let name = null;
+        
+        if (typeof item === 'string') {
+          // Simple string format
+          name = item;
+        } else if (typeof item === 'object' && item !== null) {
+          // Object format - check multiple possible properties
+          name = item.name || item.Title || item.FullName;
+          
+          // Also add the 'key' if available (pre-normalised)
+          if (item.key) {
+            l6Whitelist.add(item.key);
+            
+            // Build advanced matching indices
+            const keyTokens = tokeniseName(item.key);
+            const keySignature = keyTokens.slice().sort().join('|');
+            
+            if (!l6SignatureMap.has(keySignature)) {
+              l6SignatureMap.set(keySignature, new Set());
+            }
+            l6SignatureMap.get(keySignature).add(item.key);
+            
+            l6Entries.push({ 
+              norm: item.key, 
+              tokens: keyTokens, 
+              signature: keySignature 
+            });
+          }
+        }
+        
+        if (name) {
+          // Add normalised version of the name
+          const normalisedName = normalizeName(name);
+          l6Whitelist.add(normalisedName);
+          
+          // Build advanced matching indices for the name
+          const nameTokens = tokeniseName(name);
+          const nameSignature = nameTokens.slice().sort().join('|');
+          
+          if (!l6SignatureMap.has(nameSignature)) {
+            l6SignatureMap.set(nameSignature, new Set());
+          }
+          l6SignatureMap.get(nameSignature).add(normalisedName);
+          
+          l6Entries.push({ 
+            norm: normalisedName, 
+            tokens: nameTokens, 
+            signature: nameSignature 
+          });
+          
+          // Also add common variations for compound names
+          if (name.includes(',')) {
+            // Handle "Last, First" format -> also add "First Last"
+            const parts = name.split(',').map(p => p.trim());
+            if (parts.length === 2) {
+              const reversed = `${parts[1]} ${parts[0]}`;
+              const reversedNorm = normalizeName(reversed);
+              l6Whitelist.add(reversedNorm);
+              
+              const reversedTokens = tokeniseName(reversed);
+              const reversedSignature = reversedTokens.slice().sort().join('|');
+              
+              if (!l6SignatureMap.has(reversedSignature)) {
+                l6SignatureMap.set(reversedSignature, new Set());
+              }
+              l6SignatureMap.get(reversedSignature).add(reversedNorm);
+              
+              l6Entries.push({ 
+                norm: reversedNorm, 
+                tokens: reversedTokens, 
+                signature: reversedSignature 
+              });
+            }
+          }
+        } else if (typeof item === 'object') {
+          console.warn("Whitelist item found without recognised name key (name, Title, FullName):", JSON.stringify(item));
+        }
+      });
+
+      console.log(`Whitelist loaded successfully: ${l6Whitelist.size} entries found.`);
+      console.log("Sample entries:", Array.from(l6Whitelist).slice(0, 5));
+
+    } catch (error) {
+      console.error('Error fetching or processing whitelist:', error);
+      showConnectionStatus(`Warning: Could not load the Lower 6 eligibility list (Whitelist). Enrolment may be disabled. Error: ${error.message}`, 'warning');
+    }
+  }
+
+  // Current user not required (name entry flow used instead)
+  async function fetchCurrentUser() { return null; }
+
+  // Enrolments loading via SharePoint removed (counts now come from submit + CSV view if needed)
+  async function loadEnrollments() { return; }
+
+  async function loadEnrollmentsWithoutFilter() { return; }
+
+  function processEnrollmentData(items) {
+    // Reset course counts before processing
+    coursesData.forEach(course => {
+      course.enrolledL6 = 0;
+      course.enrolledTotal = 0;
+    });
+    enrollments = {};
+
+    items.forEach(item => {
+      const email = item[SP_COLUMNS.StudentEmail]?.toLowerCase();
+      const courseId = item[SP_COLUMNS.CourseId];
+      const formGroup = item[SP_COLUMNS.FormGroup];
+      const academicYear = item[SP_COLUMNS.AcademicYear];
+
+      if (!email || !courseId) return;
+      
+      // Client-side filtering
+      if (academicYear && academicYear !== ACADEMIC_YEAR) {
+        return;
+      }
+
+      // Update course enrolment counts
+      const course = coursesData.find(c => c.id === courseId);
+      if (course) {
+        course.enrolledTotal++;
+        if (formGroup === ELIGIBLE_FORM_GROUP) {
+          course.enrolledL6++;
+        }
+      }
+
+      // Store individual enrolment record
+      enrollments[email] = {
+        studentName: item[SP_COLUMNS.StudentName],
+        courseId: courseId,
+        courseName: item[SP_COLUMNS.CourseName],
+        formGroup: formGroup,
+        academicYear: academicYear || ACADEMIC_YEAR,
+        status: item[SP_COLUMNS.Status],
+        timestamp: item[SP_COLUMNS.Timestamp]
+      };
+    });
+  }
+
+  async function submitToSharePoint(enrollmentData) {
+    if (!isSharePointAvailable) {
+      throw new Error("SharePoint connection lost. Cannot submit.");
+    }
+
+    try {
+      const requestDigest = await getFreshRequestDigest();
+
+      const itemData = {
+        '__metadata': { 'type': LIST_ITEM_ENTITY_TYPE },
+        'Title': `Enrolment for ${enrollmentData.displayName} (${ACADEMIC_YEAR})`,
+        [SP_COLUMNS.StudentEmail]: enrollmentData.email,
+        [SP_COLUMNS.StudentName]: enrollmentData.displayName,
+        [SP_COLUMNS.CourseId]: enrollmentData.courseId,
+        [SP_COLUMNS.CourseName]: enrollmentData.courseName,
+        [SP_COLUMNS.FormGroup]: enrollmentData.formGroup,
+        [SP_COLUMNS.Status]: 'Enrolled',
+        [SP_COLUMNS.AcademicYear]: ACADEMIC_YEAR
+      };
+
+      const response = await fetch(`${SITE_URL}/_api/web/lists/getbytitle('${LIST_NAME}')/items`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json;odata=verbose',
+          'Content-Type': 'application/json;odata=verbose',
+          'X-RequestDigest': requestDigest
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(itemData)
+      });
+
+      if (!response.ok) {
+        const errorMessage = await getSharePointErrorMessage(response);
+        if (response.status === 403) {
+          throw new Error("Permission denied. Please ensure you have write access.");
+        }
+        throw new Error(`Submission failed. ${errorMessage}`);
+      }
+
+      // Update local state after successful submission
+      const result = await response.json();
+      const course = coursesData.find(c => c.id === enrollmentData.courseId);
+      if (course) {
+        course.enrolledTotal++;
+        if (enrollmentData.formGroup === ELIGIBLE_FORM_GROUP) {
+          course.enrolledL6++;
+        }
+      }
+      
+      enrollments[enrollmentData.email.toLowerCase()] = {
+        studentName: enrollmentData.displayName,
+        courseId: enrollmentData.courseId,
+        courseName: enrollmentData.courseName,
+        formGroup: enrollmentData.formGroup,
+        academicYear: ACADEMIC_YEAR,
+        status: 'Enrolled',
+        timestamp: result.d.Created
+      };
+
+      return result;
+
+    } catch (error) {
+      console.error('Error submitting to SharePoint:', error);
+      throw error;
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // UI FUNCTIONS
+  // ────────────────────────────────────────────────────────────────────
+  // Connection status UI removed
+  function showConnectionStatus() { /* no-op */ }
+
+  function getCapacityStatusClass(remaining) {
+    if (remaining <= 0) return 'full';
+    if (remaining <= 2) return 'limited';
+    return '';
+  }
+
+  function renderCourses(searchTerm = '') {
+    const container = document.getElementById('coursesGrid');
+    if (!container) return;
+    
+    const searchLower = searchTerm.toLowerCase();
+
+    const filteredCourses = coursesData.filter(course => {
+      const matchesSearch = course.name.toLowerCase().includes(searchLower) ||
+                          course.description.toLowerCase().includes(searchLower) ||
+                          course.category.toLowerCase().includes(searchLower) ||
+                          (course.staff || '').toLowerCase().includes(searchLower) ||
+                          (course.leaders || '').toLowerCase().includes(searchLower);
+      
+      const remainingL6 = L6_MAX_CAPACITY - course.enrolledL6;
+      const remainingTotal = TOTAL_MAX_CAPACITY - course.enrolledTotal;
+
+      switch (currentFilter) {
+        case 'available':
+          return matchesSearch && remainingL6 > 0 && remainingTotal > 0;
+        default:
+          return matchesSearch;
+      }
+    });
+    
+    if (filteredCourses.length === 0) {
+      container.innerHTML = '<div class="text-center py-12 col-span-full"><i class="fas fa-search text-4xl text-gray-400 mb-4" aria-hidden="true"></i><h3 class="text-xl font-semibold text-gray-700 mb-2">No courses found</h3><p class="text-gray-500">Try adjusting your search or filter criteria.</p></div>';
+      return;
+    }
+    
+    container.innerHTML = filteredCourses.map(course => {
+      const remainingL6 = L6_MAX_CAPACITY - course.enrolledL6;
+      const remainingTotal = TOTAL_MAX_CAPACITY - course.enrolledTotal;
+      
+      const isL6Full = remainingL6 <= 0;
+      const isTotalFull = remainingTotal <= 0;
+      const isFull = isL6Full || isTotalFull;
+
+      const isSelected = selectedCourse && selectedCourse.id === course.id;
+      const userEnrolledInThis = isEnrolled && currentUser && enrollments[currentUser.email]?.courseId === course.id;
+
+      let cardClass = '';
+      if (userEnrolledInThis) {
+        cardClass = 'enrolled-in';
+      } else if (isFull && isL6Eligible) {
+        cardClass = 'full';
+      } else if (isSelected) {
+        cardClass = 'selected';
+      }
+      
+      const isDisabled = isEnrolled || (isL6Eligible && isFull) || !isL6Eligible;
+      if (isDisabled) {
+        cardClass += ' disabled-card';
+      }
+      
+      const totalBadgeClass = getCapacityStatusClass(remainingTotal);
+    
+      return `
+        <div class="course-card ${cardClass}" data-course-id="${course.id}" role="button" tabindex="${isDisabled ? -1 : 0}" aria-label="Course: ${course.name}">
+          <div class="course-header">
+            <div class="flex justify-between items-start gap-4">
+              <div class="flex-1">
+                <h3 class="text-lg font-bold mb-1">${course.name}</h3>
+                ${course.staff ? `<p class="text-sm opacity-90"><i class="fas fa-chalkboard-teacher mr-1" aria-hidden="true"></i>Staff: ${course.staff}</p>` : ''}
+              </div>
+              <div class="capacity-badges-container">
+                <div class="capacity-badge ${totalBadgeClass}" title="Total Spots Remaining">Total: ${remainingTotal}/${TOTAL_MAX_CAPACITY}</div>
+              </div>
+            </div>
+          </div>
+        
+          <div class="course-content">
+            <div>
+              <p class="text-gray-700 mb-3 text-sm">${course.description}</p>
+              ${course.leaders ? `<p class="text-sm text-gray-600 mb-4 italic"><strong>L6 Leaders:</strong> ${course.leaders}</p>` : ''}
+            </div>
+          
+            <div class="flex justify-between items-center mt-auto pt-3">
+              <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-medium">${course.category}</span>
+              ${renderCourseAction(isFull, isSelected, userEnrolledInThis, isL6Full, isTotalFull)}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderCourseAction(isFull, isSelected, userEnrolledInThis, isL6Full, isTotalFull) {
+    if (userEnrolledInThis) {
+      return '<span class="text-indigo-600 text-sm font-semibold"><i class="fas fa-user-check mr-1" aria-hidden="true"></i>Your Course</span>';
+    }
+    
+    if (!isL6Eligible) {
+      return '<span class="text-gray-500 text-sm font-semibold"><i class="fas fa-eye mr-1" aria-hidden="true"></i>Viewing Only</span>';
+    }
+    
+    if (isEnrolled) {
+      return '<span class="text-gray-500 text-sm font-semibold"><i class="fas fa-lock mr-1" aria-hidden="true"></i>Unavailable</span>';
+    }
+    
+    if (isFull) {
+      return `<span class="text-red-600 text-sm font-semibold"><i class="fas fa-times-circle mr-1" aria-hidden="true"></i>Course Full</span>`;
+    }
+    
+    if (isSelected) {
+      return '<span class="text-green-600 text-sm font-semibold"><i class="fas fa-check-circle mr-1" aria-hidden="true"></i>Selected</span>';
+    }
+    
+    return '<span class="text-blue-600 text-sm font-semibold"><i class="fas fa-mouse-pointer mr-1" aria-hidden="true"></i>Click to Select</span>';
+  }
+
+  function selectCourse(courseId) {
+    if (!isL6Eligible || isEnrolled) return;
+
+    const course = coursesData.find(c => c.id === courseId);
+    if (!course || course.enrolledL6 >= L6_MAX_CAPACITY || course.enrolledTotal >= TOTAL_MAX_CAPACITY) return;
+  
+    selectedCourse = course;
+  
+    const infoDiv = document.getElementById('selectedCourseInfo');
+    const detailsDiv = document.getElementById('selectedCourseDetails');
+  
+    if (infoDiv && detailsDiv) {
+      infoDiv.style.display = 'block';
+      detailsDiv.innerHTML = `
+        <div class="bg-white p-4 rounded-lg shadow-sm">
+          <h4 class="font-bold text-lg text-gray-900 mb-2">${course.name}</h4>
+          <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+            ${course.staff ? `<span><i class="fas fa-chalkboard-teacher mr-1" aria-hidden="true"></i>${course.staff}</span>` : ''}
+            <span><i class="fas fa-users mr-1" aria-hidden="true"></i>Spots Left: ${TOTAL_MAX_CAPACITY - course.enrolledTotal}</span>
+          </div>
+        </div>`;
+    }
+  
+    updateSubmitButton();
+    renderCourses(document.getElementById('searchInput').value);
+    document.getElementById('enrolmentSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function updateSubmitButton() {
+    const button = document.getElementById('submitEnrolment');
+    if (!button) return;
+    
+    const studentName = document.getElementById('studentName').value.trim();
+    const hasSelection = selectedCourse !== null;
+  
+    const isDisabled = isLoading || !studentName || !hasSelection || isEnrolled || !isL6Eligible;
+    button.disabled = isDisabled;
+    button.setAttribute('aria-disabled', isDisabled);
+    
+    if (isLoading) {
+      button.innerHTML = `<span class="btn-loader" aria-hidden="true"></span>Processing...`;
+    } else if (isL6Eligible && studentName && hasSelection && !isEnrolled) {
+      button.innerHTML = `<i class="fas fa-paper-plane mr-2" aria-hidden="true"></i>Enrol in ${selectedCourse.name}`;
+    } else {
+      button.innerHTML = `<i class="fas fa-paper-plane mr-2" aria-hidden="true"></i>Submit Enrolment`;
+    }
+  }
+
+  async function submitEnrolment() {
+    if (isLoading) return;
+
+    if (!matchedStudent || !selectedCourse || !isL6Eligible) {
+      showError('Cannot proceed. Please confirm your name and select an available course.');
+      return;
+    }
+    
+    isLoading = true;
+    updateSubmitButton();
+
+    try {
+      // Client-side single selection enforcement; persistence handled separately.
+
+      const latestCourseData = coursesData.find(c => c.id === selectedCourse.id);
+      
+      if (!latestCourseData) {
+        throw new Error("Selected course data not found.");
+      }
+
+      const isL6Full = latestCourseData.enrolledL6 >= L6_MAX_CAPACITY;
+      const isTotalFull = latestCourseData.enrolledTotal >= TOTAL_MAX_CAPACITY;
+
+      if (isL6Full || isTotalFull) {
+        showError(`Apologies, this course is now full. Please select another course.`);
+        
+        selectedCourse = null;
+        const infoDiv = document.getElementById('selectedCourseInfo');
+        if (infoDiv) infoDiv.style.display = 'none';
+
+        renderCourses(document.getElementById('searchInput').value);
+        updateStatistics();
+        return;
+      }
+
+      // TODO: Optionally call a Supabase function to persist enrolment
+    
+      isEnrolled = true;
+      showSuccess();
+      handleEnrolmentStatus();
+      updateStatistics();
+    
+    } catch (error) {
+      showError(`Enrolment failed. Details: ${error.message}. Please try again or contact IT support.`);
+    } finally {
+      isLoading = false;
+      updateSubmitButton();
+    }
+  }
+
+  function showSuccess() {
+    const modal = document.getElementById('successModal');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function showError(message) {
+    const modal = document.getElementById('errorModal');
+    const messageEl = document.getElementById('errorMessage');
+  
+    if (messageEl) messageEl.textContent = message;
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function toggleLoader(show) {
+    const loader = document.getElementById('loader');
+    if (loader) {
+      loader.style.display = show ? 'flex' : 'none';
+    }
+  }
+
+  function updateStatistics() {
+    const get = id => document.getElementById(id);
+    const totalL6Spots = coursesData.length * L6_MAX_CAPACITY;
+    const totalOverallSpots = coursesData.length * TOTAL_MAX_CAPACITY;
+    
+    let usedL6Spots = 0;
+    for (const course of coursesData) {
+      usedL6Spots += course.enrolledL6;
+    }
+  
+    if (get('totalCourses')) get('totalCourses').textContent = coursesData.length;
+    if (get('totalL6Spots')) get('totalL6Spots').textContent = totalL6Spots;
+    if (get('enrolledL6Count')) get('enrolledL6Count').textContent = usedL6Spots;
+    if (get('totalOverallSpots')) get('totalOverallSpots').textContent = totalOverallSpots;
+  }
+
+  function handleEnrolmentStatus() {
+    const enrolmentSection = document.getElementById('enrolmentSection');
+    const alreadyEnrolledMessage = document.getElementById('alreadyEnrolledMessage');
+    const enrolledCourseDetails = document.getElementById('enrolledCourseDetails');
+    const actionContainer = document.getElementById('actionContainer');
+    const formGroupDisplay = document.getElementById('formGroupDisplay');
+    const formGroupHidden = document.getElementById('formGroup');
+    const submitButton = document.getElementById('submitEnrolment');
+
+    if (isL6Eligible && isEnrolled && currentUser) {
+      const userEnrolment = enrollments[currentUser.email];
+      if (userEnrolment) {
+        if (enrolmentSection) enrolmentSection.style.display = 'none';
+        if (alreadyEnrolledMessage) alreadyEnrolledMessage.style.display = 'block';
+        if (enrolledCourseDetails) enrolledCourseDetails.textContent = userEnrolment.courseName;
+      }
+    } else {
+      if (enrolmentSection) enrolmentSection.style.display = 'block';
+      if (alreadyEnrolledMessage) alreadyEnrolledMessage.style.display = 'none';
+      
+      if (isL6Eligible) {
+        if (submitButton) submitButton.style.display = 'block';
+        if (document.getElementById('viewingOnlyMessage')) {
+          document.getElementById('viewingOnlyMessage').style.display = 'none';
+        }
+
+        if (formGroupDisplay) {
+          formGroupDisplay.value = "Lower 6 (Eligible)";
+          formGroupDisplay.classList.add('text-green-700');
+        }
+        if (formGroupHidden) formGroupHidden.value = ELIGIBLE_FORM_GROUP;
+
+      } else {
+        if (submitButton) submitButton.style.display = 'none';
+        
+        if (actionContainer && !document.getElementById('viewingOnlyMessage')) {
+          const message = document.createElement('div');
+          message.id = 'viewingOnlyMessage';
+          message.className = 'p-4 bg-yellow-100 text-yellow-800 rounded-lg text-center font-semibold';
+          message.innerHTML = '<i class="fas fa-info-circle mr-2" aria-hidden="true"></i>Viewing only – enrolment restricted to Lower 6.';
+          actionContainer.appendChild(message);
+        } else if (document.getElementById('viewingOnlyMessage')) {
+          document.getElementById('viewingOnlyMessage').style.display = 'block';
+        }
+
+        if (formGroupDisplay) {
+          formGroupDisplay.value = "Ineligible for this phase";
+          formGroupDisplay.classList.add('text-gray-500');
+        }
+      }
+    }
+    
+    renderCourses(document.getElementById('searchInput').value);
+    updateSubmitButton();
+  }
+
+  function setupEventListeners() {
+    const searchInput = document.getElementById('searchInput');
+    let debounceTimer;
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          renderCourses(e.target.value);
+        }, 300);
+      });
+    }
+    // Entry CTA
+    const startBtn = document.getElementById('startEnrolment');
+    if (startBtn) {
+      startBtn.addEventListener('click', startFlowWithName);
+    }
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', function() {
+        const isDark = document.body.classList.contains('dark');
+        const next = isDark ? 'light' : 'dark';
+        localStorage.setItem(THEME_STORAGE_KEY, next);
+        applyTheme(next);
+      });
+    }
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+      backToTop.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      window.addEventListener('scroll', function() {
+        backToTop.style.display = window.scrollY > 600 ? 'flex' : 'none';
+      });
+    }
+  
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('filter-btn')) {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-pressed', 'false');
+        });
+        e.target.classList.add('active');
+        e.target.setAttribute('aria-pressed', 'true');
+        currentFilter = e.target.dataset.filter;
+        renderCourses(document.getElementById('searchInput').value);
+      }
+    
+      if (e.target.closest('.course-card')) {
+        handleCourseCardInteraction(e.target.closest('.course-card'));
+      }
+    
+      if (e.target.id === 'submitEnrolment') {
+        submitEnrolment();
+      }
+    
+      if (e.target.id === 'closeSuccessModal') {
+        document.getElementById('successModal').style.display = 'none';
+      }
+    
+      if (e.target.id === 'closeErrorModal') {
+        document.getElementById('errorModal').style.display = 'none';
+      }
+    });
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        if (e.target.closest('.course-card')) {
+          e.preventDefault();
+          handleCourseCardInteraction(e.target.closest('.course-card'));
+        }
+      }
+    });
+  }
+
+  function handleCourseCardInteraction(courseCard) {
+    if (!courseCard.classList.contains('disabled-card')) {
+      const courseId = courseCard.dataset.courseId;
+      selectCourse(courseId);
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // APPLICATION INITIALISATION
+  // ────────────────────────────────────────────────────────────────────
+  async function initializeApp() {
+    toggleLoader(true);
+
+    const academicYearInput = document.getElementById('academicYearDisplay');
+    if (academicYearInput) academicYearInput.value = ACADEMIC_YEAR;
+    initTheme();
+    
+    // SharePoint bootstrap removed – pupil starts via entry section (Supabase lookup)
+
+    // ✅ ROBUST ELIGIBILITY CHECK WITH ADVANCED MATCHING
+    const displayNormalised = normalizeName('');
+    const displayTokens = tokeniseName(currentUser.displayName);
+    let eligible = false;
+    let ambiguous = false;
+
+    console.log(`Checking eligibility for: "${currentUser.displayName}"`);
+    console.log(`Normalised: "${displayNormalised}"`);
+    console.log(`Tokens: [${displayTokens.join(', ')}]`);
+
+    // Direct match first
+    if (l6Whitelist.has(displayNormalised)) {
+      console.log('✅ Direct match found in whitelist');
+      eligible = true;
+    } else if (displayTokens.length >= 2) {
+      // Advanced matching using tokens and signatures
+      const firstToken = displayTokens[0]; // Usually the first name
+      
+      // Find candidates that:
+      // 1. Are a subset match (all display tokens exist in whitelist entry)
+      // 2. Include the first token (to avoid false positives)
+      const candidates = l6Entries.filter(entry => 
+        isSubsetTokens(displayTokens, entry.tokens) && 
+        entry.tokens.includes(firstToken)
+      );
+
+      console.log(`Found ${candidates.length} potential matches using advanced matching`);
+      
+      if (candidates.length === 1) {
+        console.log('✅ Unique match found via advanced matching:', candidates[0].norm);
+        eligible = true;
+      } else if (candidates.length > 1) {
+        console.log('⚠️ Multiple matches found - ambiguous:', candidates.map(c => c.norm));
+        ambiguous = true;
+      } else {
+        console.log('❌ No matches found');
+      }
+    }
+
+    isL6Eligible = eligible;
+
+    if (ambiguous) {
+      showConnectionStatus('Your displayed name matches multiple pupils with similar names. Please contact the CAS Coordinator if you believe you should have access.', 'warning');
+    } else if (!isL6Eligible && l6Whitelist.size > 0) {
+      console.log(`Eligibility check: User "${displayNormalised}" not found in L6 whitelist.`);
+    }
+
+    try {
+      await loadEnrollments();
+    } catch (e) {
+      // Error handled within loadEnrollments
+    }
+    
+    if (isL6Eligible && currentUser.email && enrollments[currentUser.email]) {
+      isEnrolled = true;
+    }
+  
+    updateStatistics();
+    handleEnrolmentStatus();
+    setupEventListeners();
+    
+    toggleLoader(false);
+  }
+
+  // Start the application
+  setTimeout(() => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
+  }, 100);
+  
+  // ────────────────────────────────────────────────────────────────────
+  // SUPABASE LOOKUP (name → student record → L6 eligibility)
+  // ────────────────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://gjvtncdjcslnkfctqnfy.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqdnRuY2RqY3NsbmtmY3RxbmZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NzM0MDEsImV4cCI6MjA1OTU0OTQwMX0.AzALxUUvYLJJtDkvxt7efJ7bGxeKmzOs-fT5bQOndiU';
+
+  function showEntryFeedback(message, type) {
+    const el = document.getElementById('entryFeedback');
+    if (!el) return;
+    let cls = 'bg-gray-50 text-gray-700 border border-gray-200';
+    if (type === 'success') cls = 'bg-green-50 text-green-800 border border-green-200';
+    else if (type === 'warning') cls = 'bg-yellow-50 text-yellow-800 border border-yellow-200';
+    else if (type === 'error') cls = 'bg-red-50 text-red-800 border border-red-200';
+    el.className = `mt-4 p-3 rounded-lg ${cls}`;
+    el.textContent = message;
+    el.style.display = 'block';
+  }
+
+  async function startFlowWithName() {
+    const input = document.getElementById('pupilEntryName');
+    if (!input) return;
+    const fullName = (input.value || '').trim();
+    if (fullName.length < 3) {
+      showEntryFeedback('Please enter your full name.', 'error');
+      return;
+    }
+    showEntryFeedback('Checking your details…', '');
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/find_enrichment_student`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ p_full_name: fullName })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`Lookup failed (${res.status}): ${txt}`);
+      }
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        showEntryFeedback('No matching pupil found. Please check the spelling and try again.', 'error');
+        return;
+      }
+      matchedStudent = data[0];
+      const isLower6 = matchedStudent.year === 6 || /(\b|\s)L6/i.test(matchedStudent.form || '');
+
+      // Populate enrolment header fields
+      const nameInput = document.getElementById('studentName');
+      if (nameInput) nameInput.value = `${matchedStudent.forename} ${matchedStudent.surname}`;
+      const formDisplay = document.getElementById('formGroupDisplay');
+      if (formDisplay) formDisplay.value = isLower6 ? 'Lower 6 (Eligible)' : 'Ineligible for this phase';
+      const formHidden = document.getElementById('formGroup');
+      if (formHidden) formHidden.value = isLower6 ? 'L6' : '';
+
+      // Apply rule flags and refresh UI
+      isL6Eligible = isLower6;
+      handleEnrolmentStatus();
+
+      if (isLower6) showEntryFeedback('Welcome. You may select one course only. Each course accepts up to 3 Lower 6 pupils.', 'success');
+      else showEntryFeedback('Viewing only – enrolment is currently restricted to Lower 6.', 'warning');
+
+      // Reveal main sections after successful identification
+      document.getElementById('enrolmentSection').style.display = 'block';
+      document.getElementById('searchFilterSection').style.display = 'block';
+      document.getElementById('instructionsSection').style.display = 'block';
+      document.getElementById('coursesContainer').style.display = 'block';
+      document.getElementById('changePupil').style.display = 'inline-block';
+
+      // Hide entry once authenticated
+      document.getElementById('entrySection').style.display = 'none';
+
+      document.getElementById('enrolmentSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      showEntryFeedback(`An error occurred: ${err.message}`, 'error');
+    }
+  }
+
+  // Allow changing the identified pupil (returns to entry)
+  const changeBtn = document.getElementById('changePupil');
+  if (changeBtn) {
+    changeBtn.addEventListener('click', function() {
+      matchedStudent = null;
+      isL6Eligible = false;
+      isEnrolled = false;
+      selectedCourse = null;
+      document.getElementById('studentName').value = '';
+      document.getElementById('formGroupDisplay').value = '';
+      document.getElementById('formGroup').value = '';
+      document.getElementById('selectedCourseInfo').style.display = 'none';
+      document.getElementById('entrySection').style.display = 'block';
+      document.getElementById('enrolmentSection').style.display = 'none';
+      document.getElementById('searchFilterSection').style.display = 'none';
+      document.getElementById('instructionsSection').style.display = 'none';
+      document.getElementById('coursesContainer').style.display = 'none';
+      renderCourses('');
+      updateSubmitButton();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
